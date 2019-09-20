@@ -6,7 +6,7 @@ import java.util.List;
 public class Project {
 
     //list that holds the people on a project
-    List peopleList;
+    List<Person> peopleList;
     //project number
     int projectNumber;
     List<String> majors;
@@ -25,12 +25,16 @@ public class Project {
         majors = majorList;
     }
 
-    public void addPerson(String personName){
-        peopleList.add(personName);
+    public void addPerson(Person person){
+        peopleList.add(person);
     }
 
+    //removes the person from the list
+    public void removePerson(Person person){
+        peopleList.remove(person);
+    }
     //gets the list of people
-    public List getPeopleList(){
+    public List<Person> getPeopleList(){
         return peopleList;
     }
 }
