@@ -50,6 +50,7 @@ public class TeamSorter {
         //prints out the project and the disciplines attatched to it
         for(Project project: projectList){
             System.out.print(project.projectNumber + " ");
+            //System.out.println(project.peopleList.size());
             for(Person student: project.getPeopleList()){
                 System.out.print(student.getName() + ", ");
             }
