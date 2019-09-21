@@ -3,6 +3,7 @@ package src;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TeamSorter {
@@ -34,6 +35,8 @@ public class TeamSorter {
                 int projectsize = currentProject.peopleList.size();
                 //if the project is not filled
                 if (projectsize < 3) {
+                    //randomely shuffles the student list before iterating through the list
+                    Collections.shuffle(studentList);
                     //search through students who have this project on their list
                     for (int y = 0; y < studentList.size(); y++) {
                         Person student = studentList.get(y);
@@ -83,9 +86,14 @@ public class TeamSorter {
             }
         }*/
 
+        //counts how many projects have less than 3
+        int countLessThanMinimum = 0;
         //prints out the project and the disciplines attatched to it
         for(Project project: projectList){
             System.out.print(project.projectNumber + " ");
+            if(project.getPeopleList().size() < 3){
+                countLessThanMinimum++;
+            }
             //System.out.println(project.peopleList.size());
             for(Person student: project.getPeopleList()){
                 System.out.print(student.getName() + ", ");
@@ -105,7 +113,7 @@ public class TeamSorter {
         for(Person person: studentList){
             System.out.print(person.getName() + " ");
             List list = person.returnProjectList();
-            int index = person.returnProjectList().indexOf(person.getCurrentProject());
+            int index = list.indexOf(person.getCurrentProject());
             switch(index){
                 case 0:
                     count1++;
@@ -131,6 +139,7 @@ public class TeamSorter {
         System.out.println("count 3: " + count3);
         System.out.println("count 4: " + count4);
         System.out.println("count 5: " + count5);
+        System.out.println("Projects With Less Than 3: " + countLessThanMinimum);
     }
 
     //method used to populate the project list by reading the project description text
@@ -162,7 +171,7 @@ public class TeamSorter {
     //method used to populate the people list by reading the student description text
     private static void readStudentDescription(){
         //reads the project description file and populates the project list
-        try (BufferedReader br = new BufferedReader(new FileReader("studentdescriptions(3).txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("studentdescriptions.txt"))) {
             StringBuilder sb = new StringBuilder();
             String line = "";
 
