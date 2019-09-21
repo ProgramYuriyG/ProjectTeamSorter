@@ -1,3 +1,5 @@
+package src;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -26,7 +28,7 @@ public class TeamGenerator {
         //opens the PrintWriter to make a new textfile which will hold all of the information about students
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter("studentdescriptions.txt", "UTF-8");
+            writer = new PrintWriter("studentdescriptions(3).txt", "UTF-8");
         } catch (FileNotFoundException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }

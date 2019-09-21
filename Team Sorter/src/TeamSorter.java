@@ -28,7 +28,7 @@ public class TeamSorter {
             student.setCurrentProject(project);
         }
         //for each project that does not have enough students, search the students for the ones which fit the best
-        for(int priority = 0; priority < studentProjectCounter; priority++) {
+        for (int priority = 0; priority < studentProjectCounter; priority++) {
             for (int x = 0; x < projectList.size(); x++) {
                 Project currentProject = projectList.get(x);
                 int projectsize = currentProject.peopleList.size();
@@ -162,7 +162,7 @@ public class TeamSorter {
     //method used to populate the people list by reading the student description text
     private static void readStudentDescription(){
         //reads the project description file and populates the project list
-        try (BufferedReader br = new BufferedReader(new FileReader("studentdescriptions.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("studentdescriptions(3).txt"))) {
             StringBuilder sb = new StringBuilder();
             String line = "";
 
