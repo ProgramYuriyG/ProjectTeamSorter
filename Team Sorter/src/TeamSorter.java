@@ -15,10 +15,13 @@ public class TeamSorter {
     static int count4 = 0;
     static int count5 = 0;
     static int previousSum = 0;
+    static int previousCountLess = 0;
 
     //the array lists containing the project information and the student information
     static List<Project> projectList = new ArrayList();
     static List<Person> studentList = new ArrayList();
+    //list of extra students
+    static List<Person> extraList = new ArrayList<>();
     //static counter for how many projects the student has listed
     private static final int studentProjectCounter = 5;
     //the counter for how many projects havn't been fulfilled
@@ -26,7 +29,7 @@ public class TeamSorter {
 
     //main method
     public static void main(String[]args) {
-        for(int x = 0; x < 100000; x++) {
+        for(int x = 0; x < 1000; x++) {
             countLessThanMinimum = -1;
             count1 = 0;
             count2 = 0;
@@ -145,20 +148,64 @@ public class TeamSorter {
     //method used to put people into the correct projects with every project filled
     private static void placeStudents(){
         //Method 2
+
+        //used to give the students extra majors for the projects that they are allowed to do.
+        for(Person student: studentList){
+            List<String> studentMajorList = student.getMajor();
+            switch(studentMajorList.get(0)){
+                case "CS":
+                    studentMajorList.add("CE");
+                    break;
+                case "CE":
+                    studentMajorList.add("CS");
+                    studentMajorList.add("EE");
+                    break;
+                case "EE":
+                    studentMajorList.add("MCE");
+                    break;
+                case "MCE":
+                    studentMajorList.add("EE");
+                    break;
+            }
+            student.setMajor(studentMajorList);
+        }
+
         //puts the students in their first project
         for(int x = 0; x < studentList.size(); x++){
             Person student = studentList.get(x);
-            Project project = student.returnProjectList().get(0);
-            project.addPerson(student);
-            student.setCurrentProject(project);
+            for(int projectListCount = 0; projectListCount < 5; projectListCount++) {
+                Project project = student.returnProjectList().get(projectListCount);
+                for(int majorCount = 0; majorCount < student.getMajor().size(); majorCount++) {
+                    if (project.majors.contains(student.getMajor().get(majorCount))) {
+                        project.addPerson(student);
+                        student.setCurrentProject(project);
+                        break;
+                    }
+                }
+                if(student.currentProject != null){
+                    break;
+                }
+            }
+            //if the person has no specified project
+            if(student.getCurrentProject() == null){
+                Project studentProject = student.returnProjectList().get(0);
+                List<String> majorList = student.getMajor();
+                majorList.add(studentProject.majors.get(0));
+                student.setMajor( majorList );
+                studentProject.addPerson(student);
+                student.setCurrentProject(studentProject);
+                //extraList.add(student);
+                // student.setCurrentProject(student.returnProjectList().get(0));
+            }
         }
 
         //counts how many projects have less than 3
-        while(countLessThanMinimum != 0) {
+        //while(countLessThanMinimum != 0) {
+        //for(int countx = 0; countx < 10; countx++) {
             countLessThanMinimum = 0;
             //for each project that does not have enough students, search the students for the ones which fit the best
             for (int priority = 0; priority < studentProjectCounter; priority++) {
-                for (int count = 0; count < 3; count++) {
+                for (int count = 0; count < 1; count++) {
                     for (int x = 0; x < projectList.size(); x++) {
                         Project currentProject = projectList.get(x);
                         int projectsize = currentProject.peopleList.size();
@@ -169,6 +216,17 @@ public class TeamSorter {
                             //search through students who have this project on their list
                             for (int y = 0; y < studentList.size(); y++) {
                                 Person student = studentList.get(y);
+                                List<String> majorList = student.getMajor();
+                                boolean nextStudent = false;
+                                for(int majorCount = 0; majorCount < majorList.size(); majorCount++) {
+                                    if (!currentProject.majors.contains(majorList.get(majorCount))) {
+                                        nextStudent = true;
+                                        break;
+                                    }
+                                }
+                                if(nextStudent){
+                                    continue;
+                                }
                                 if (student.getCurrentProject() != currentProject && student.returnProjectList().get(priority) == currentProject) {
                                     //adds the person to the current project and removes them from their previous one
                                     currentProject.addPerson(student);
@@ -185,18 +243,30 @@ public class TeamSorter {
                         }
                     }
                 }
+        }
+        //prints out the project and the disciplines attatched to it
+        for(Project project: projectList) {
+            while (project.getPeopleList().size() < 3 && !extraList.isEmpty()) {
+                project.addPerson(extraList.get(0));
+                extraList.get(0).setCurrentProject(project);
+                extraList.remove(0);
+                //countLessThanMinimum++;
             }
-            //prints out the project and the disciplines attatched to it
-            for(Project project: projectList) {
-                if (project.getPeopleList().size() < 3) {
-                    countLessThanMinimum++;
-                }
+        }
+        //prints out the project and the disciplines attatched to it
+        for(Project project: projectList) {
+            if (project.getPeopleList().size() < 3) {
+                countLessThanMinimum++;
             }
         }
 
         //writes it to a textFile
         writeCounts();
-        if(previousSum < sumCounts()) {
+        if(previousCountLess > countLessThanMinimum) {
+            writeToTextFile();
+            previousSum = sumCounts();
+            previousCountLess = countLessThanMinimum;
+        }else if(previousSum < sumCounts()){
             writeToTextFile();
             previousSum = sumCounts();
         }
@@ -208,6 +278,7 @@ public class TeamSorter {
         //prints out the project and the disciplines attatched to it
         for(Project project: projectList){
             System.out.print(project.projectNumber + " ");
+            System.out.print(project.majors.toString() + " ");
             //System.out.println(project.peopleList.size());
             for(Person student: project.getPeopleList()){
                 System.out.print(student.getName() + ", ");
@@ -217,7 +288,7 @@ public class TeamSorter {
 
         //prints out the project and the disciplines attatched to it
         System.out.println("\n");
-        for(Person person: studentList){
+        /*for(Person person: studentList){
             System.out.print(person.getName() + " ");
             List list = person.returnProjectList();
             //for whichever priority the person's current project is, increase that counter to get the count of how many
@@ -242,7 +313,7 @@ public class TeamSorter {
             }
             System.out.print(index + 1 + "") ;
             System.out.println();
-        }
+        }*/
         //prints out the priority counts and then the projects with less than the minimum members
         System.out.println("count 1: " + count1);
         System.out.println("count 2: " + count2);
@@ -295,8 +366,11 @@ public class TeamSorter {
                     String studentName = line.substring(0, line.indexOf('-')-1);
                     String studentMajor = line.substring(line.indexOf('-')+2, line.indexOf(':')-1);
                     String studentProjectList = line.substring(line.indexOf(':')+1);
+                    //creates a list for future studentMajors
+                    List<String> studentMajors = new ArrayList<>();
+                    studentMajors.add(studentMajor);
                     //creates a new Project and adds it to the project list
-                    studentList.add( new Person( studentName, studentMajor, convertProjectList(studentProjectList) ) );
+                    studentList.add( new Person( studentName, studentMajors, convertProjectList(studentProjectList) ) );
                 }
             }
             //String everything = sb.toString();

@@ -5,12 +5,12 @@ import java.util.List;
 public class Person{
     //variables
     String name;
-    String major;
+    private List<String> major;
     List<Project> projectList;
     Project currentProject;
 
     //constructor with name, major, and project list
-    Person(String name, String major, List<Project> projectList){
+    Person(String name, List<String> major, List<Project> projectList){
         this.name = name;
         this.major = major;
         this.projectList = projectList;
@@ -20,8 +20,12 @@ public class Person{
         return name;
     }
 
-    public String getMajor(){
+    public List<String> getMajor(){
         return major;
+    }
+
+    public void setMajor(List<String> majorList){
+        major = majorList;
     }
 
     //sets the person's current project
