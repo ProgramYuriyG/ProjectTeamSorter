@@ -15,7 +15,7 @@ public class TeamSorter {
     static int count4 = 0;
     static int count5 = 0;
     static int previousSum = 0;
-    static int previousCountLess = 0;
+    static int previousCountLess = 100;
 
     //the array lists containing the project information and the student information
     static List<Project> projectList = new ArrayList();
@@ -29,7 +29,7 @@ public class TeamSorter {
 
     //main method
     public static void main(String[]args) {
-        for(int x = 0; x < 100000; x++) {
+        for(int x = 0; x < 10000; x++) {
             countLessThanMinimum = -1;
             count1 = 0;
             count2 = 0;
@@ -101,13 +101,6 @@ public class TeamSorter {
             writer.println();
         }
 
-        //counters for how many of each priority were given
-        int count1 = 0;
-        int count2 = 0;
-        int count3 = 0;
-        int count4 = 0;
-        int count5 = 0;
-
         //prints out the project and the disciplines attatched to it
         writer.println("\n");
         for(Person person: studentList){
@@ -116,23 +109,6 @@ public class TeamSorter {
             //for whichever priority the person's current project is, increase that counter to get the count of how many
             //of each priority students got
             int index = list.indexOf(person.getCurrentProject());
-            switch(index){
-                case 0:
-                    count1++;
-                    break;
-                case 1:
-                    count2++;
-                    break;
-                case 2:
-                    count3++;
-                    break;
-                case 3:
-                    count4++;
-                    break;
-                case 4:
-                    count5++;
-                    break;
-            }
             writer.print(index + 1 + "") ;
             writer.println();
         }
@@ -173,12 +149,20 @@ public class TeamSorter {
         //puts the students in their first project
         for(int x = 0; x < studentList.size(); x++){
             Person student = studentList.get(x);
-            List<Project> studentProjectList = student.returnProjectList();
+            //extraList.add(student);
+            List<Project> studentProjectList = new ArrayList<>( student.returnProjectList() );
             for(int y = 0; y < studentProjectList.size(); y++) {
                 if (!studentProjectList.get(y).majors.contains(student.getMajor().get(0))) {
                     studentProjectList.remove(studentProjectList.get(y));
                     y--;
                 }
+            }
+
+            if(!studentProjectList.isEmpty()){
+                student.projectList = studentProjectList;
+            }else{
+                studentList.remove(student);
+                extraList.add(student);
             }
             //Person student = studentList.get(x);
             //Project project = student.returnProjectList().get(0);
@@ -236,12 +220,46 @@ public class TeamSorter {
                 }
             }
             //prints out the project and the disciplines attatched to it
-            for(Project project: projectList) {
-                if (project.getPeopleList().size() < 3) {
-                    countLessThanMinimum++;
+        int counter = 0;
+        while(counter < 5) {
+            for (Project project : projectList) {
+                int listSize = project.getPeopleList().size();
+                if (listSize < 3) {
+                    for(int x = 0; x<extraList.size(); x++){
+                        Person student = extraList.get(x);
+                        for(int priority = 0; priority<student.returnProjectList().size(); priority++) {
+                            if ((student.getCurrentProject() != project && student.returnProjectList().get(priority) == project)) {
+                                project.addPerson(student);
+                                student.setCurrentProject(project);
+                                studentList.add(student);
+                                extraList.remove(student);
+                                x--;
+                                listSize++;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
+            counter++;
+        }
+        if(!extraList.isEmpty()) {
+            for (Person student: extraList) {
+                Project studentProject = student.returnProjectList().get(0);
+                for (int priority = 1; priority < studentProjectCounter; priority++) {
+                    if(studentProject.getPeopleList().size() > student.returnProjectList().get(priority).getPeopleList().size()){
+                        studentProject = student.returnProjectList().get(priority);
+                    }
+                }
+                student.setCurrentProject(studentProject);
+            }
+        }
         //}
+        for (Project project : projectList) {
+            if (project.getPeopleList().size() < 3) {
+                countLessThanMinimum++;
+            }
+        }
 
         //writes it to a textFile
         writeCounts();
@@ -335,7 +353,7 @@ public class TeamSorter {
     //method used to populate the people list by reading the student description text
     private static void readStudentDescription(){
         //reads the project description file and populates the project list
-        try (BufferedReader br = new BufferedReader(new FileReader("studentdescriptions(2).txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("studentdescriptions(1).txt"))) {
             StringBuilder sb = new StringBuilder();
             String line = "";
             //while there is still stuff to read in the textfile
