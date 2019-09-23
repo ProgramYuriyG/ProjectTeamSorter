@@ -29,7 +29,7 @@ public class TeamSorter {
 
     //main method
     public static void main(String[]args) {
-        for(int x = 0; x < 1000; x++) {
+        for(int x = 0; x < 100000; x++) {
             countLessThanMinimum = -1;
             count1 = 0;
             count2 = 0;
@@ -173,39 +173,26 @@ public class TeamSorter {
         //puts the students in their first project
         for(int x = 0; x < studentList.size(); x++){
             Person student = studentList.get(x);
-            for(int projectListCount = 0; projectListCount < 5; projectListCount++) {
-                Project project = student.returnProjectList().get(projectListCount);
-                for(int majorCount = 0; majorCount < student.getMajor().size(); majorCount++) {
-                    if (project.majors.contains(student.getMajor().get(majorCount))) {
-                        project.addPerson(student);
-                        student.setCurrentProject(project);
-                        break;
-                    }
-                }
-                if(student.currentProject != null){
-                    break;
+            List<Project> studentProjectList = student.returnProjectList();
+            for(int y = 0; y < studentProjectList.size(); y++) {
+                if (!studentProjectList.get(y).majors.contains(student.getMajor().get(0))) {
+                    studentProjectList.remove(studentProjectList.get(y));
+                    y--;
                 }
             }
-            //if the person has no specified project
-            if(student.getCurrentProject() == null){
-                Project studentProject = student.returnProjectList().get(0);
-                List<String> majorList = student.getMajor();
-                majorList.add(studentProject.majors.get(0));
-                student.setMajor( majorList );
-                studentProject.addPerson(student);
-                student.setCurrentProject(studentProject);
-                //extraList.add(student);
-                // student.setCurrentProject(student.returnProjectList().get(0));
-            }
+            //Person student = studentList.get(x);
+            //Project project = student.returnProjectList().get(0);
+            //project.addPerson(student);
+            //student.setCurrentProject(project);
         }
 
         //counts how many projects have less than 3
-        //while(countLessThanMinimum != 0) {
+        //while(countLessThanMinimum != 1) {
         //for(int countx = 0; countx < 10; countx++) {
             countLessThanMinimum = 0;
             //for each project that does not have enough students, search the students for the ones which fit the best
             for (int priority = 0; priority < studentProjectCounter; priority++) {
-                for (int count = 0; count < 1; count++) {
+                for (int count = 0; count < 3; count++) {
                     for (int x = 0; x < projectList.size(); x++) {
                         Project currentProject = projectList.get(x);
                         int projectsize = currentProject.peopleList.size();
@@ -217,48 +204,44 @@ public class TeamSorter {
                             for (int y = 0; y < studentList.size(); y++) {
                                 Person student = studentList.get(y);
                                 List<String> majorList = student.getMajor();
-                                boolean nextStudent = false;
-                                for(int majorCount = 0; majorCount < majorList.size(); majorCount++) {
-                                    if (!currentProject.majors.contains(majorList.get(majorCount))) {
-                                        nextStudent = true;
+                                boolean nextStudent = true;
+                                for (int majorCount = 0; majorCount < majorList.size(); majorCount++) {
+                                    if (currentProject.majors.contains(majorList.get(majorCount))) {
+                                        nextStudent = false;
                                         break;
                                     }
                                 }
-                                if(nextStudent){
+                                if (nextStudent) {
                                     continue;
                                 }
-                                if (student.getCurrentProject() != currentProject && student.returnProjectList().get(priority) == currentProject) {
-                                    //adds the person to the current project and removes them from their previous one
-                                    currentProject.addPerson(student);
-                                    student.getCurrentProject().removePerson(student);
-                                    //adds the project as the student's current project
-                                    student.setCurrentProject(currentProject);
-                                    //make sure that once the projectsize counter reaches 3 then go on to the next project
-                                    projectsize++;
-                                    if (!(projectsize < 3)) {
-                                        break;
+                                if (student.returnProjectList().size() > priority) {
+                                    if (student.getCurrentProject() != currentProject && student.returnProjectList().get(priority) == currentProject) {
+                                        //adds the person to the current project and removes them from their previous one
+                                        currentProject.addPerson(student);
+                                        if (student.getCurrentProject() != null) {
+                                            student.getCurrentProject().removePerson(student);
+                                        }
+                                        //adds the project as the student's current project
+                                        student.setCurrentProject(currentProject);
+                                        //make sure that once the projectsize counter reaches 3 then go on to the next project
+                                        projectsize++;
+                                        if (!(projectsize < 3)) {
+                                            break;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-        }
-        //prints out the project and the disciplines attatched to it
-        for(Project project: projectList) {
-            while (project.getPeopleList().size() < 3 && !extraList.isEmpty()) {
-                project.addPerson(extraList.get(0));
-                extraList.get(0).setCurrentProject(project);
-                extraList.remove(0);
-                //countLessThanMinimum++;
             }
-        }
-        //prints out the project and the disciplines attatched to it
-        for(Project project: projectList) {
-            if (project.getPeopleList().size() < 3) {
-                countLessThanMinimum++;
+            //prints out the project and the disciplines attatched to it
+            for(Project project: projectList) {
+                if (project.getPeopleList().size() < 3) {
+                    countLessThanMinimum++;
+                }
             }
-        }
+        //}
 
         //writes it to a textFile
         writeCounts();
@@ -266,7 +249,7 @@ public class TeamSorter {
             writeToTextFile();
             previousSum = sumCounts();
             previousCountLess = countLessThanMinimum;
-        }else if(previousSum < sumCounts()){
+        }else if(previousCountLess == countLessThanMinimum && previousSum < sumCounts()){
             writeToTextFile();
             previousSum = sumCounts();
         }
