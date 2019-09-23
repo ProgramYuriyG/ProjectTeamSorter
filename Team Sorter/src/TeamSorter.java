@@ -221,14 +221,14 @@ public class TeamSorter {
             }
             //prints out the project and the disciplines attatched to it
         int counter = 0;
-        while(counter < 5) {
+        while(counter != 10) {
             for (Project project : projectList) {
                 int listSize = project.getPeopleList().size();
                 if (listSize < 3) {
                     for(int x = 0; x<extraList.size(); x++){
                         Person student = extraList.get(x);
-                        for(int priority = 0; priority<student.returnProjectList().size(); priority++) {
-                            if ((student.getCurrentProject() != project && student.returnProjectList().get(priority) == project)) {
+                        for(int majorList = 0; majorList<student.getMajor().size(); majorList++) {
+                            if ( project.majors.contains( student.getMajor().get(majorList) ) ){
                                 project.addPerson(student);
                                 student.setCurrentProject(project);
                                 studentList.add(student);
@@ -245,13 +245,12 @@ public class TeamSorter {
         }
         if(!extraList.isEmpty()) {
             for (Person student: extraList) {
-                Project studentProject = student.returnProjectList().get(0);
-                for (int priority = 1; priority < studentProjectCounter; priority++) {
-                    if(studentProject.getPeopleList().size() > student.returnProjectList().get(priority).getPeopleList().size()){
-                        studentProject = student.returnProjectList().get(priority);
+                for(Project projects: projectList){
+                    if(projects.getPeopleList().size() < 3){
+                        projects.addPerson(student);
+                        student.setCurrentProject(projects);
                     }
                 }
-                student.setCurrentProject(studentProject);
             }
         }
         //}
